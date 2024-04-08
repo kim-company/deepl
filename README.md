@@ -9,3 +9,7 @@ def deps do
   ]
 end
 ```
+
+## Copyright and License
+Copyright 2024, [KIM Keep In Mind GmbH](https://www.keepinmind.info/)
+Licensed under the [Apache License, Version 2.0](LICENSE)
