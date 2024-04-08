@@ -43,7 +43,7 @@ defmodule Deepl do
   @spec new() :: Req.Request.t()
   defp new() do
     [
-      base_url: Application.get_env(:deepl, :base_url, URI.new!("https://api.deepl.com/v2/"))
+      base_url: Application.get_env(:deepl, :base_url, "https://api.deepl.com/v2/")
     ]
     |> Keyword.merge(Application.get_env(:deepl, :req_options))
     |> Req.new()
