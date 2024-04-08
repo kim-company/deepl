@@ -33,6 +33,13 @@ defmodule Deepl do
     ConCache.get_or_store(Deepl.Cache, key, get_fun)
   end
 
+  @spec supported_language_codes(language_type()) :: [String.t()]
+  def supported_language_codes(type \\ :target) do
+    type
+    |> supported_languages()
+    |> Enum.map(fn %{"language" => x} -> x end)
+  end
+
   @spec new() :: Req.Request.t()
   defp new() do
     [
