@@ -15,29 +15,16 @@ defmodule Deepl do
     post(new(), sentences, target_lang, opts)
   end
 
-  @type language_type :: :target | :source
+  @spec source_languages() :: [String.t()]
+  def source_languages(), do: supported_languages(:source)
 
-  @spec supported_languages(language_type()) :: [map()]
-  def supported_languages(type \\ :target) do
-    get_fun = fn ->
-      response = Req.get!(new(), url: "/languages", params: [type: type])
-
-      if response.status == 200 do
-        response.body
-      else
-        raise Deepl.Error, response
-      end
+  @spec target_languages(String.t() | nil) :: [String.t()]
+  def target_languages(source_language \\ nil) do
+    if source_language == nil || source_language in source_languages() do
+      supported_languages(:target)
+    else
+      []
     end
-
-    key = Enum.join(["supported", "languages", type], "-")
-    ConCache.get_or_store(Deepl.Cache, key, get_fun)
-  end
-
-  @spec supported_language_codes(language_type()) :: [String.t()]
-  def supported_language_codes(type \\ :target) do
-    type
-    |> supported_languages()
-    |> Enum.map(fn %{"language" => x} -> x end)
   end
 
   @spec new() :: Req.Request.t()
@@ -80,6 +67,22 @@ defmodule Deepl do
     else
       get_fun.()
     end
+  end
+
+  defp supported_languages(type) do
+    get_fun = fn ->
+      response = Req.get!(new(), url: "/languages", params: [type: type])
+
+      if response.status == 200 do
+        response.body
+        |> Enum.map(fn %{"language" => x} -> x end)
+      else
+        raise Deepl.Error, response
+      end
+    end
+
+    key = Enum.join(["supported", "languages", type], "-")
+    ConCache.get_or_store(Deepl.Cache, key, get_fun)
   end
 
   defp generate_hash(fields) do
