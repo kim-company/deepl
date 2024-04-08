@@ -18,14 +18,8 @@ defmodule Deepl do
   @spec source_languages() :: [String.t()]
   def source_languages(), do: supported_languages(:source)
 
-  @spec target_languages(String.t() | nil) :: [String.t()]
-  def target_languages(source_language \\ nil) do
-    if source_language == nil || source_language in source_languages() do
-      supported_languages(:target)
-    else
-      []
-    end
-  end
+  @spec target_languages() :: [String.t()]
+  def target_languages(), do: supported_languages(:target)
 
   @spec new() :: Req.Request.t()
   defp new() do
