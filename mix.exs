@@ -22,7 +22,6 @@ defmodule Deepl.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nimble_options, "~> 1.0"},
       {:req, "~> 0.4.0"},
       {:con_cache, "~> 1.0"}
     ]
