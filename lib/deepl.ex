@@ -10,14 +10,9 @@ defmodule Deepl do
     end
   end
 
-  @connect_timeout 3_000
-  @receive_timeout 3_000
-
   @spec translate([String.t()], String.t(), Keyword.t()) :: [String.t()]
   def translate(sentences, target_lang, opts \\ []) do
-    opts
-    |> new()
-    |> post(sentences, target_lang, opts)
+    post(new(), sentences, target_lang, opts)
   end
 
   @type language_type :: :target | :source
@@ -25,10 +20,7 @@ defmodule Deepl do
   @spec supported_languages(language_type()) :: [map()]
   def supported_languages(type \\ :target) do
     get_fun = fn ->
-      response =
-        []
-        |> new()
-        |> Req.get!(url: "/languages", params: [type: type])
+      response = Req.get!(new(), url: "/languages", params: [type: type])
 
       if response.status == 200 do
         response.body
@@ -41,26 +33,13 @@ defmodule Deepl do
     ConCache.get_or_store(Deepl.Cache, key, get_fun)
   end
 
-  @spec new(Keyword.t()) :: Req.Request.t()
-  defp new(opts) do
-    auth_key = Application.get_env(:deepl, :auth_key, "")
-
-    if auth_key == "" do
-      raise RuntimeError, "Could not find :auth_key in application environment"
-    end
-
-    endpoint = Application.get_env(:deepl, :endpoint, "api.deepl.com")
-    base_url = URI.new!("https://#{endpoint}/v2/")
-
-    connect_timeout = Keyword.get(opts, :connect_timeout, @connect_timeout)
-    receive_timeout = Keyword.get(opts, :receive_timeout, @receive_timeout)
-
-    Req.new(
-      base_url: base_url,
-      connect_options: [timeout: connect_timeout],
-      receive_timeout: receive_timeout,
-      auth: "DeepL-Auth-Key #{auth_key}"
-    )
+  @spec new() :: Req.Request.t()
+  defp new() do
+    [
+      base_url: Application.get_env(:deepl, :base_url, URI.new!("https://api.deepl.com/v2/"))
+    ]
+    |> Keyword.merge(Application.get_env(:deepl, :req_options))
+    |> Req.new()
   end
 
   @spec post(Req.Request.t(), [String.t()], String.t(), Keyword.t()) :: [String.t()]
