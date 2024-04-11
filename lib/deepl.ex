@@ -26,7 +26,7 @@ defmodule Deepl do
   end
 
   @spec translate(Req.Request.t(), [String.t()], String.t(), Keyword.t()) :: [String.t()]
-  def translate(req, sentences, target_lang, opts) do
+  def translate(req, sentences, target_lang, opts \\ []) do
     source_lang = Keyword.get(opts, :source_lang, "")
     cache = Keyword.get(opts, :cache, true)
 
