@@ -10,27 +10,51 @@ def deps do
 end
 ```
 
-## Configuration
-In production you're going to want to set the endpoint and auth environment variables
+## Usage
+You can create a Deepl client by calling the `Deepl.new()` function providing the necessary
+options, which usually depend on the environment. For testing, you might want to 
+use [Req.Test capabilities](https://hexdocs.pm/req/Req.Test.html) and
+mock the responses, here is an example
 
 ```elixir
-# config/runtime.exs
-config :deepl, req_options: [
-  auth: "DeepL-Auth-Key #{System.get_env("DEEPL_API_KEY")}",
-  connect_options: [timeout: 3_000]
-]
+# Somewhere in the code you pass these options to the initializatin function
+Deepl.new(plug: {Req.Test, Deepl})
+
+# In the test then you can create the appropriate stubs
+Req.Test.stub(Deepl, fn conn ->
+  case conn.path_info do
+    ["v2", "languages"] ->
+      Req.Test.json(conn, [
+        %{
+          language: "DE",
+          name: "German",
+          supports_formality: true
+        }
+      ])
+  end
+end)
 ```
-Check https://hexdocs.pm/req/Req.html#new/1 for all available options.
+Refer to Req's guide for more.
 
-During tests, you can instead use [Req.Test capabilities](https://hexdocs.pm/req/Req.Test.html) and
-mock the responses.
 
+In production, you'll want to provide the proper authentication key instead.
 ```elixir
-# config/test.exs
-config :deepl, req_options: [
-  plug: {Req.Test, Fake.Deepl.Plug}
-]
+Deepl.new(auth: "DeepL-Auth-Key #{System.get_env("DEEPL_API_KEY")}")
 ```
+
+Afterwards, just pass the client to the provided functions:
+```elixir
+client = Deepl.new(auth: "DeepL-Auth-Key #{System.get_env("DEEPL_API_KEY")}")
+translations = Deepl.translate(client, ["Hello, world!"], "IT", source_lang: "EN-US")
+```
+
+Note that source_lang is optional.
+
+## Further configuration
+Caching is done with ConCache. You can configure its settings with application
+environment. Read `application.ex`.
+
+
 
 ## Copyright and License
 Copyright 2024, [KIM Keep In Mind GmbH](https://www.keepinmind.info/)

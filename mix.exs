@@ -23,7 +23,8 @@ defmodule Deepl.MixProject do
   defp deps do
     [
       {:req, "~> 0.4.0"},
-      {:con_cache, "~> 1.0"}
+      {:con_cache, "~> 1.0"},
+      {:plug, "~> 1.0", only: :test}
     ]
   end
 end

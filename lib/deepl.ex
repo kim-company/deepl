@@ -10,35 +10,30 @@ defmodule Deepl do
     end
   end
 
-  @spec translate([String.t()], String.t(), Keyword.t()) :: [String.t()]
-  def translate(sentences, target_lang, opts \\ []) do
-    post(new(), sentences, target_lang, opts)
-  end
+  @type t :: Req.Request.t()
 
-  @spec source_languages() :: [String.t()]
-  def source_languages(), do: supported_languages(:source)
+  @spec source_languages(t()) :: [String.t()]
+  def source_languages(req), do: supported_languages(req, :source)
 
-  @spec target_languages() :: [String.t()]
-  def target_languages(), do: supported_languages(:target)
+  @spec target_languages(t()) :: [String.t()]
+  def target_languages(req), do: supported_languages(req, :target)
 
-  @spec new() :: Req.Request.t()
-  defp new() do
-    [
-      base_url: Application.get_env(:deepl, :base_url, "https://api.deepl.com/v2/")
-    ]
-    |> Keyword.merge(Application.get_env(:deepl, :req_options))
+  @spec new(keyword()) :: t()
+  def new(opts) do
+    opts
+    |> Keyword.put_new(:base_url, "https://api.deepl.com/")
     |> Req.new()
   end
 
-  @spec post(Req.Request.t(), [String.t()], String.t(), Keyword.t()) :: [String.t()]
-  defp post(req, sentences, target_lang, opts) do
+  @spec translate(Req.Request.t(), [String.t()], String.t(), Keyword.t()) :: [String.t()]
+  def translate(req, sentences, target_lang, opts) do
     source_lang = Keyword.get(opts, :source_lang, "")
     cache = Keyword.get(opts, :cache, true)
 
     get_fun = fn ->
       response =
         Req.post!(req,
-          url: "/translate",
+          url: "/v2/translate",
           json: %{
             text: sentences,
             source_lang: source_lang,
@@ -63,9 +58,9 @@ defmodule Deepl do
     end
   end
 
-  defp supported_languages(type) do
+  defp supported_languages(req, type) do
     get_fun = fn ->
-      response = Req.get!(new(), url: "/languages", params: [type: type])
+      response = Req.get!(req, url: "/v2/languages", params: [type: type])
 
       if response.status == 200 do
         response.body
