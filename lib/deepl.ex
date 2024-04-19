@@ -67,7 +67,7 @@ defmodule Deepl do
 
         # As of January 2024, Arabic (AR) is supported as a source and target language for text translation, but it is not yet supported for document translation.
         # Therefore, Arabic has not yet been added to the /languages endpoint.
-        codes = Enum.uniq(["AR" | codes])
+        Enum.uniq(["AR" | codes])
       else
         raise Deepl.Error, response
       end
