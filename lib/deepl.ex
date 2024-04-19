@@ -12,11 +12,20 @@ defmodule Deepl do
 
   @type t :: Req.Request.t()
 
+  @spec source_languages() :: [String.t()]
   @spec source_languages(t()) :: [String.t()]
-  def source_languages(req), do: supported_languages(req, :source)
+  def source_languages(req \\ new()), do: supported_languages(req, :source)
 
+  @spec target_languages() :: [String.t()]
   @spec target_languages(t()) :: [String.t()]
-  def target_languages(req), do: supported_languages(req, :target)
+  def target_languages(req \\ new()), do: supported_languages(req, :target)
+
+  @spec new() :: t()
+  def new() do
+    [base_url: Application.get_env(:deepl, :base_url, "https://api.deepl.com/")]
+    |> Keyword.merge(Application.get_env(:deepl, :req_options))
+    |> Req.new()
+  end
 
   @spec new(keyword()) :: t()
   def new(opts) do
