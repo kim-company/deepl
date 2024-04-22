@@ -4,7 +4,13 @@ defmodule Deepl do
 
     @impl true
     def exception(response) do
-      message = Map.get(response.body, "message", "undefined")
+      message =
+        if is_map(response.body) do
+          Map.get(response.body, "message", "undefined")
+        else
+          "undefined"
+        end
+
       message = "Failed with status #{response.status}: #{inspect(message)}"
       %__MODULE__{message: message}
     end
