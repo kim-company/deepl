@@ -18,11 +18,20 @@ defmodule Deepl do
 
   @type t :: Req.Request.t()
 
+  @spec source_languages() :: [String.t()]
   @spec source_languages(t()) :: [String.t()]
-  def source_languages(req), do: supported_languages(req, :source)
+  def source_languages(req \\ new()), do: supported_languages(req, :source)
 
+  @spec target_languages() :: [String.t()]
   @spec target_languages(t()) :: [String.t()]
-  def target_languages(req), do: supported_languages(req, :target)
+  def target_languages(req \\ new()), do: supported_languages(req, :target)
+
+  @spec new() :: t()
+  def new() do
+    [base_url: Application.get_env(:deepl, :base_url, "https://api.deepl.com/")]
+    |> Keyword.merge(Application.get_env(:deepl, :req_options))
+    |> Req.new()
+  end
 
   @spec new(keyword()) :: t()
   def new(opts) do
@@ -69,8 +78,11 @@ defmodule Deepl do
       response = Req.get!(req, url: "/v2/languages", params: [type: type])
 
       if response.status == 200 do
-        response.body
-        |> Enum.map(fn %{"language" => x} -> x end)
+        codes = Enum.map(response.body, fn %{"language" => x} -> x end)
+
+        # As of January 2024, Arabic (AR) is supported as a source and target language for text translation, but it is not yet supported for document translation.
+        # Therefore, Arabic has not yet been added to the /languages endpoint.
+        Enum.uniq(["AR" | codes])
       else
         raise Deepl.Error, response
       end
