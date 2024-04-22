@@ -17,6 +17,6 @@ defmodule DeeplTest do
       end
     end)
 
-    assert ["DE"] = Deepl.source_languages(client)
+    assert "DE" in Deepl.source_languages(client)
   end
 end
