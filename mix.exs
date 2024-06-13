@@ -22,7 +22,7 @@ defmodule Deepl.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:req, "~> 0.4.0"},
+      {:req, "~> 0.5.0"},
       {:con_cache, "~> 1.0"},
       {:plug, "~> 1.0", only: :test}
     ]
